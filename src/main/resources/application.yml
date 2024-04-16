@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    username: dataflow
+    password: dataflow
+    url: jdbc:postgresql://node01.ming.com:5432/dataflow
+    driver-class-name: org.postgresql.Driver
+  batch:
+    jdbc:
+      initialize-schema: always
