@@ -16,6 +16,7 @@ import org.springframework.batch.core.listener.ExecutionContextPromotionListener
 import org.springframework.batch.core.step.tasklet.SystemCommandTasklet;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
 @Slf4j
 @EnableBatchProcessing
@@ -57,9 +58,16 @@ public class MingBatchConfiguration {
     @Bean
     SystemCommandTasklet tasklet() {
         SystemCommandTasklet systemCommandTasklet = new SystemCommandTasklet();
-        systemCommandTasklet.setCommand("mkdir ming");
+
+        systemCommandTasklet.setWorkingDirectory("/Users/yeonnex/study/ming-batch/ming/");
+
+        systemCommandTasklet.setCommand("touch tmp.txt");
         systemCommandTasklet.setTimeout(5000);
         systemCommandTasklet.setInterruptOnCancel(true);
+
+        systemCommandTasklet.setTaskExecutor(new SimpleAsyncTaskExecutor());
+        systemCommandTasklet.setEnvironmentParams(new String[] {"JAVA_HOME=/java", "BATCH_HOME=/Users/batch"});
+
         return systemCommandTasklet;
     }
 }
