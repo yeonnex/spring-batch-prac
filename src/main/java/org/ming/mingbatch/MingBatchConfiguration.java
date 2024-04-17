@@ -8,9 +8,11 @@ import org.ming.mingbatch.validator.ParameterValidator;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParametersValidator;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.listener.ExecutionContextPromotionListener;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -51,5 +53,12 @@ public class MingBatchConfiguration {
                     }
                     return RepeatStatus.FINISHED;
                 }).build();
+    }
+
+    @Bean
+    StepExecutionListener promotionListener() {
+        ExecutionContextPromotionListener listener = new ExecutionContextPromotionListener();
+        listener.setKeys(new String[] {"name"});
+        return listener;
     }
 }

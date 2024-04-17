@@ -12,8 +12,7 @@ public class HelloTasklet implements Tasklet {
         String name = (String) chunkContext.getStepContext()
                 .getJobParameters()
                 .get("name");
-        ExecutionContext jobContext = stepContribution.getStepExecution()
-                .getJobExecution().getExecutionContext();
+        ExecutionContext jobContext = stepContribution.getStepExecution().getExecutionContext();
         jobContext.put("user.name", name);
         return RepeatStatus.FINISHED;
     }
