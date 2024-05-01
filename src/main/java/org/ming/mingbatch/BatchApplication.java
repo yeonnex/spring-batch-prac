@@ -1,15 +1,19 @@
 package org.ming.mingbatch;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Configuration;
 
-@SpringBootApplication
+@Configuration
+@RequiredArgsConstructor
 @EnableBatchProcessing
-public class MingBatchApplication {
+@SpringBootApplication
+public class BatchApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(MingBatchApplication.class, args);
+        SpringApplication.run(BatchApplication.class, args);
     }
 
 }

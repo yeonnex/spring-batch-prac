@@ -1,9 +1,15 @@
 spring:
   datasource:
-    username: dataflow
-    password: dataflow
-    url: jdbc:postgresql://node01.ming.com:5432/dataflow
-    driver-class-name: org.postgresql.Driver
+    username: root
+    password:
+    url: jdbc:mysql://localhost:3306/ming
+    driver-class-name: com.mysql.cj.jdbc.Driver
   batch:
+    job:
+      enabled: true
     jdbc:
       initialize-schema: always
+
+ming:
+  job:
+    fail: true
