@@ -6,8 +6,9 @@ import org.ming.mingbatch.domain.Customer;
 import org.ming.mingbatch.domain.Transaction;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamException;
-import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.file.ResourceAwareItemReaderItemStream;
+import org.springframework.core.io.Resource;
 
 import java.util.Arrays;
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
-public class CustomerReader implements ItemStreamReader<Customer> {
+public class CustomerReader implements ResourceAwareItemReaderItemStream<Customer> {
     /**
      * 회원 레코드 prefix
      */
@@ -79,10 +80,12 @@ public class CustomerReader implements ItemStreamReader<Customer> {
     @Override
     public void close() throws ItemStreamException {
         flatFileItemReader.close();
+        curItem = null;  // Reset the current item
     }
 
     @Override
     public Customer read() throws Exception {
+
         if (curItem == null) {
             if (this.readNextItem() instanceof Customer customer) {
                 getTransaction(customer);
@@ -102,5 +105,10 @@ public class CustomerReader implements ItemStreamReader<Customer> {
         while (this.readNextItem() instanceof Transaction transaction) {
             customer.addTransaction(transaction);
         }
+    }
+
+    @Override
+    public void setResource(Resource resource) {
+        flatFileItemReader.setResource(resource);
     }
 }
