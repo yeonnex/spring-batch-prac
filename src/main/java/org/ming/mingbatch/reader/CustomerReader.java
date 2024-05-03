@@ -2,7 +2,6 @@ package org.ming.mingbatch.reader;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.client.utils.DateUtils;
 import org.ming.mingbatch.domain.Customer;
 import org.ming.mingbatch.domain.Transaction;
 import org.springframework.batch.item.ExecutionContext;
@@ -10,57 +9,61 @@ import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.file.FlatFileItemReader;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 
 @Slf4j
 @RequiredArgsConstructor
 public class CustomerReader implements ItemStreamReader<Customer> {
-
+    /**
+     * 회원 레코드 prefix
+     */
+    private static final String CUSTOMER_PREFIX = "CUST";
+    /**
+     * 트랜잭션 레코드 prefix
+     */
+    private static final String TRANSACTION_PREFIX = "TRANS";
+    /**
+     * 위임할 플랫 파일 리더
+     */
     private final FlatFileItemReader<String> flatFileItemReader;
-    private String  curItem = null;
+    /**
+     * 파일에서 읽어온 현재 레코드
+     */
+    private Object curItem = null;
 
-    @Override
-    public Customer read() throws Exception {
-        Customer customer = new Customer();
-        // "CUST" 이면 "TRANS" 가 끝날떄 까지 계속 읽는다. 다시 "CUST" 가 나오면 해당 읽기를 멈추고 리턴 한다.
-        String read = curItem != null ? curItem : flatFileItemReader.read();
-        if (read == null) {
+    /**
+     * Customer 또는 Transaction 객체를 반환한다.
+     *
+     * @return 회원 또는 트랜잭션 객체
+     */
+    private Object readNextItem() throws Exception {
+
+        String nextItem = flatFileItemReader.read();
+
+        if (nextItem == null) {
+            log.info("Reached the end of the file.");
             return null;
         }
-        if (read.startsWith("CUST")) {
-            // 회원 정보 매핑
-            List<String> list = Arrays.stream(read.split(",")).toList();
 
-            customer.setFirstName(list.get(1));
-            customer.setMiddleInitial(list.get(2));
-            customer.setLastName(list.get(3));
-            customer.setAddress(list.get(4));
-            customer.setCity(list.get(5));
-            customer.setState(list.get(6));
-            List<Transaction> transactions = new ArrayList<>();
+        List<String> list = Arrays.asList(nextItem.split(","));
 
-            curItem = flatFileItemReader.read();
+        String prefix = list.get(0); // "CUST" or "TRANS"
 
-            if (curItem == null) {
-                return null;
-            }
-
-            while ( curItem != null && !curItem.startsWith("CUST") ) {
-                list = Arrays.stream(curItem.split(",")).toList();
-                Transaction transaction = new Transaction();
-                transaction.setAccountNumber(list.get(1));
-                String[] patterns = { "yyyy-MM-dd HH:mm:ss" };
-                transaction.setTransactionDate(DateUtils.parseDate(list.get(2), patterns));
-                transaction.setAmount(Double.parseDouble(list.get(3)));
-                transactions.add(transaction);
-                curItem = flatFileItemReader.read();
-            }
-            customer.setTransactions(transactions);
+        if (!prefix.startsWith(CUSTOMER_PREFIX) &&
+            !prefix.startsWith(TRANSACTION_PREFIX)) {
+            throw new IllegalArgumentException("해당하는 레코드 타입을 찾을 수 없습니다.");
         }
 
-        return customer;
+        if (prefix.startsWith(CUSTOMER_PREFIX)) {
+            curItem = Customer.from(list);
+        }
+        if (prefix.startsWith(TRANSACTION_PREFIX)) {
+            curItem = Transaction.from(list);
+        }
+
+        return curItem;
     }
 
     @Override
@@ -76,5 +79,28 @@ public class CustomerReader implements ItemStreamReader<Customer> {
     @Override
     public void close() throws ItemStreamException {
         flatFileItemReader.close();
+    }
+
+    @Override
+    public Customer read() throws Exception {
+        if (curItem == null) {
+            if (this.readNextItem() instanceof Customer customer) {
+                getTransaction(customer);
+                return customer;
+            }
+        }
+
+        if (curItem instanceof Customer customer) {
+            getTransaction(customer);
+            return customer;
+        }
+
+        return null;
+    }
+
+    private void getTransaction(Customer customer) throws Exception {
+        while (this.readNextItem() instanceof Transaction transaction) {
+            customer.addTransaction(transaction);
+        }
     }
 }

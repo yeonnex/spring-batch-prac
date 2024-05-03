@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -19,33 +20,26 @@ public class Customer {
     private String state;
     private String zipCode;
 
-    private List<Transaction> transactions;
+    private List<Transaction> transactions = new ArrayList<>();
+
+    public static Customer from(List<String> list) {
+        Customer customer = new Customer();
+        customer.setFirstName(list.get(1));
+        customer.setMiddleInitial(list.get(2));
+        customer.setLastName(list.get(3));
+        customer.setAddress(list.get(4));
+        customer.setCity(list.get(5));
+        customer.setState(list.get(6));
+        return customer;
+    }
+
+    public void addTransaction(Transaction transaction) {
+        this.transactions.add(transaction);
+    }
 
     @Override
     public String toString() {
-        String transactionMsg = transactions.isEmpty() ? "No transactions available" :
-                "Transactions count: " + transactions.size();
-
-        return """
-                Customer{
-                firstName='%s',
-                middleInitial='%s',
-                lastName='%s',
-                address='%s',
-                city='%s',
-                state='%s',
-                zipCode='%s',
-                %s
-                }
-                """.formatted(
-                firstName,
-                middleInitial,
-                lastName,
-                address,
-                city,
-                state,
-                zipCode,
-                transactionMsg
-        );
+        return String.format("%s %s %s has %d transactions",
+                this.firstName, this.middleInitial, this.lastName, this.transactions.size());
     }
 }
