@@ -26,8 +26,12 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-batch")
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-quartz")
-    compileOnly("org.projectlombok:lombok")
 
+    // XML
+    implementation("org.springframework:spring-oxm:6.1.6")
+    implementation("com.thoughtworks.xstream:xstream:1.4.17")
+
+    compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.batch:spring-batch-test")
