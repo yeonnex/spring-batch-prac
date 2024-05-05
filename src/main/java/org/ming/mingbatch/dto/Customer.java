@@ -5,15 +5,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
 @ToString
 @Getter
 @Setter
 @NoArgsConstructor
-@XmlRootElement(name = "customer")
 public class Customer {
 
     private String firstName;
@@ -24,5 +21,5 @@ public class Customer {
     private String state;
     private String zipCode;
 
-//    private List<Transaction> transactions;
+    private List<Transaction> transactions;
 }
