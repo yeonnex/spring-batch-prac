@@ -19,6 +19,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
+
+import java.io.IOException;
 
 @Configuration
 @RequiredArgsConstructor
@@ -47,10 +51,20 @@ public class CustomerJobConfig {
 
     @Bean
     @StepScope
-    MultiResourceItemReader<Customer> multiResourceItemReader(@Value("#{jobParameters['customerFile']}") Resource[] inputFiles) {
+    MultiResourceItemReader<Customer> multiResourceItemReader(@Value("#{jobParameters['customerFile']}") String inputFiles) {
+
+        ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+        String path = "file:/Users/yeonnex/Desktop/hello/*/CASH_*";
+        Resource[] resources;
+        try {
+            resources = resolver.getResources(path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         return new MultiResourceItemReaderBuilder<Customer>()
                 .name("multiCustomerReader")
-                .resources(inputFiles)
+                .resources(resources)
                 .delegate(customerReader())
                 .build();
     }
