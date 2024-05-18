@@ -31,6 +31,9 @@ dependencies {
     implementation("org.springframework:spring-oxm:6.1.6")
     implementation("com.thoughtworks.xstream:xstream:1.4.17")
 
+    // JPA (Hibernate)
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -51,7 +54,7 @@ tasks {
     bootBuildImage {
 
         // nexsus 주소/프로젝트이름:프로젝트버전
-        imageName = "$mingNexusAddress/${project.name}:${project.version}"
+//        imageName = "$mingNexusAddress/${project.name}:${project.version}"
         /*publish.set(true)
         docker {
             publishRegistry {
